@@ -1,0 +1,3 @@
+[{"name":"next-build","duration":626950,"timestamp":2921710482,"id":1,"tags":{"buildMode":"default","version":"16.1.0","bundler":"turbopack"},"startTime":1776451639868,"traceId":"49d8ecea8d808591"}]
+[{"name":"next-build","duration":443127,"timestamp":2936099709,"id":1,"tags":{"buildMode":"default","version":"16.1.0","bundler":"turbopack"},"startTime":1776451654257,"traceId":"d90c7f09abac5041"}]
+[{"name":"next-build","duration":513506,"timestamp":2950937524,"id":1,"tags":{"buildMode":"default","version":"16.1.0","bundler":"webpack"},"startTime":1776451669095,"traceId":"bbaacaa472422b82"}]
