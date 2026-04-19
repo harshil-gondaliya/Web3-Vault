@@ -1,15 +1,29 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { ethers } from "ethers";
+import CryptoJS from "crypto-js";
 import { useAuth } from "../context/AuthContext";
 import { useRouter } from "next/navigation";
-import { loadUserWallets, checkPrivateKeyExists } from "@/lib/walletStorage";
+import { auth } from "@/lib/firebase";
+import {
+  loadUserWallets,
+  checkPrivateKeyExists,
+  saveEncryptedKey,
+  saveWalletMetadata
+} from "@/lib/walletStorage";
 
 export default function Wallets() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [wallets, setWallets] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showImportForm, setShowImportForm] = useState(false);
+  const [importPrivateKey, setImportPrivateKey] = useState("");
+  const [importPassword, setImportPassword] = useState("");
+  const [importLoading, setImportLoading] = useState(false);
+  const [importError, setImportError] = useState("");
+  const [importSuccess, setImportSuccess] = useState("");
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -51,6 +65,72 @@ export default function Wallets() {
     return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
   };
 
+  const resetImportForm = () => {
+    setImportPrivateKey("");
+    setImportPassword("");
+    setImportError("");
+  };
+
+  const handleImportWallet = async () => {
+    setImportError("");
+    setImportSuccess("");
+
+    const normalizedPrivateKey = importPrivateKey.trim();
+    const normalizedPassword = importPassword.trim();
+
+    if (!normalizedPrivateKey || !normalizedPassword) {
+      setImportError("Please enter private key and wallet password");
+      return;
+    }
+
+    const currentUser = auth.currentUser;
+    if (!currentUser?.uid) {
+      setImportError("User not authenticated");
+      return;
+    }
+
+    setImportLoading(true);
+    try {
+      // Validate private key by constructing an ethers wallet.
+      const importedWallet = new ethers.Wallet(normalizedPrivateKey);
+      const address = importedWallet.address;
+
+      // Prevent duplicate wallet records for the same user.
+      const existingWallets = await loadUserWallets(currentUser.uid);
+      const alreadyExists = existingWallets.some(
+        (wallet) => wallet.address?.toLowerCase() === address.toLowerCase()
+      );
+
+      if (alreadyExists) {
+        setImportError("Wallet already added");
+        return;
+      }
+
+      // Encrypt locally and never persist plaintext private key remotely.
+      const encryptedKey = CryptoJS.AES.encrypt(normalizedPrivateKey, normalizedPassword).toString();
+      saveEncryptedKey(currentUser.uid, address, encryptedKey);
+
+      await saveWalletMetadata(currentUser.uid, {
+        address,
+        name: "Imported Wallet"
+      });
+
+      await loadWallets();
+      resetImportForm();
+      setShowImportForm(false);
+      setImportSuccess("Wallet imported successfully");
+    } catch (error) {
+      if (error?.message?.toLowerCase().includes("invalid")) {
+        setImportError("Invalid private key");
+      } else {
+        console.error("❌ Error importing wallet:", error);
+        setImportError("Failed to import wallet");
+      }
+    } finally {
+      setImportLoading(false);
+    }
+  };
+
   // Show loading while checking auth
   if (authLoading) {
     return (
@@ -74,13 +154,84 @@ export default function Wallets() {
           <h1 className="page-title">Wallets</h1>
           <p className="page-description">Manage your crypto wallets ({wallets.length})</p>
         </div>
-        <button className="btn-primary" onClick={() => router.push("/")}>
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Create New Wallet
-        </button>
+        <div className="flex gap-3">
+          <button
+            className="btn-outline"
+            onClick={() => {
+              setImportSuccess("");
+              setImportError("");
+              setShowImportForm((prev) => !prev);
+            }}
+          >
+            Import Wallet
+          </button>
+          <button className="btn-primary" onClick={() => router.push("/")}>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Create New Wallet
+          </button>
+        </div>
       </div>
+
+      {importSuccess && (
+        <div className="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+          {importSuccess}
+        </div>
+      )}
+
+      {showImportForm && (
+        <div className="mb-6 wallet-card">
+          <h3 className="wallet-name mb-3">Import Wallet</h3>
+          <div className="space-y-3">
+            <div>
+              <label className="block text-sm font-medium mb-1">Private Key</label>
+              <input
+                type="text"
+                value={importPrivateKey}
+                onChange={(e) => setImportPrivateKey(e.target.value)}
+                placeholder="0x..."
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white"
+                autoComplete="off"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">Wallet Password</label>
+              <input
+                type="password"
+                value={importPassword}
+                onChange={(e) => setImportPassword(e.target.value)}
+                placeholder="Enter password for encryption"
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white"
+                autoComplete="new-password"
+              />
+            </div>
+
+            {importError && (
+              <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                {importError}
+              </div>
+            )}
+
+            <div className="flex gap-2">
+              <button className="btn-primary" onClick={handleImportWallet} disabled={importLoading}>
+                {importLoading ? "Importing..." : "Import"}
+              </button>
+              <button
+                className="btn-outline"
+                onClick={() => {
+                  resetImportForm();
+                  setShowImportForm(false);
+                }}
+                disabled={importLoading}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="wallets-grid">
         {loading ? (
