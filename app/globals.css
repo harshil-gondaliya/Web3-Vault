@@ -20,6 +20,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -27,12 +28,18 @@ body {
   background: var(--bg-main);
   color: var(--text-primary);
   line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-size-adjust: 100%;
 }
 
 /* App Layout */
 .app-container {
   display: flex;
   min-height: 100vh;
+  position: relative;
+  width: 100%;
 }
 
 /* Sidebar */
@@ -47,6 +54,24 @@ body {
   left: 0;
   top: 0;
   z-index: 100;
+  transition: transform 0.25s ease;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 90;
+}
+
+.sidebar-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .sidebar-logo {
@@ -55,6 +80,7 @@ body {
   gap: 12px;
   padding: 24px 20px;
   border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
 }
 
 .logo-icon {
@@ -66,12 +92,17 @@ body {
   align-items: center;
   justify-content: center;
   color: white;
+  flex-shrink: 0;
+  min-width: 40px;
 }
 
 .logo-text {
   font-size: 18px;
   font-weight: 700;
   color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sidebar-nav {
@@ -80,6 +111,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .sidebar-item {
@@ -94,9 +127,10 @@ body {
   font-weight: 500;
   transition: all 0.2s;
   cursor: pointer;
+  min-height: 44px;
 }
 
-.sidebar-item:hover {
+.sidebar-item:active {
   background: var(--bg-main);
   color: var(--text-primary);
 }
@@ -109,6 +143,7 @@ body {
 .sidebar-footer {
   padding: 16px 20px;
   border-top: 1px solid var(--border-color);
+  flex-shrink: 0;
 }
 
 .sidebar-version {
@@ -124,6 +159,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  width: 100%;
 }
 
 /* Topbar */
@@ -137,18 +173,52 @@ body {
   position: sticky;
   top: 0;
   z-index: 50;
+  min-height: 64px;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.menu-toggle {
+  display: none;
+  background: var(--bg-main);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  min-width: 40px;
+  min-height: 40px;
+  transition: all 0.2s;
+}
+
+.menu-toggle:active {
+  transform: scale(0.95);
 }
 
 .topbar-title {
   font-size: 24px;
   font-weight: 700;
   color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .topbar-right {
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-wrap: nowrap;
 }
 
 .wallet-address-box {
@@ -198,24 +268,27 @@ body {
   background: none;
   border: none;
   cursor: pointer;
-  padding: 8px;
+  padding: 8px 12px;
   border-radius: 8px;
   transition: background 0.2s;
+  min-height: 40px;
 }
 
-.profile-btn:hover {
+.profile-btn:active {
   background: var(--bg-main);
 }
 
 .profile-avatar {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   background: var(--primary-blue);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
+  flex-shrink: 0;
+  min-width: 40px;
 }
 
 .dropdown-menu {
@@ -228,6 +301,7 @@ body {
   box-shadow: var(--shadow-lg);
   min-width: 180px;
   overflow: hidden;
+  z-index: 1000;
 }
 
 .dropdown-item {
@@ -243,9 +317,10 @@ body {
   cursor: pointer;
   transition: background 0.2s;
   text-align: left;
+  min-height: 44px;
 }
 
-.dropdown-item:hover {
+.dropdown-item:active {
   background: var(--bg-main);
 }
 
@@ -257,6 +332,9 @@ body {
 .page-content {
   flex: 1;
   padding: 32px;
+  width: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Dashboard */
@@ -266,6 +344,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  width: 100%;
 }
 
 .balance-card {
@@ -319,6 +398,8 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  min-height: 44px;
+  text-decoration: none;
 }
 
 .action-btn.primary {
@@ -331,6 +412,10 @@ body {
   box-shadow: 0 4px 12px rgba(255, 255, 255, 0.3);
 }
 
+.action-btn.primary:active {
+  transform: translateY(0);
+}
+
 .action-btn.secondary {
   background: rgba(255, 255, 255, 0.15);
   color: white;
@@ -339,6 +424,10 @@ body {
 
 .action-btn.secondary:hover {
   background: rgba(255, 255, 255, 0.25);
+}
+
+.action-btn.secondary:active {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* Section */
@@ -561,6 +650,8 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 32px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .page-title {
@@ -589,12 +680,18 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  min-height: 44px;
+  text-decoration: none;
 }
 
 .btn-primary:hover {
   background: var(--primary-blue-hover);
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
 }
 
 .btn-secondary {
@@ -607,11 +704,19 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-secondary:hover {
   background: white;
   border-color: var(--primary-blue);
+}
+
+.btn-secondary:active {
+  transform: scale(0.98);
 }
 
 .btn-outline {
@@ -624,11 +729,19 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-outline:hover {
   border-color: var(--primary-blue);
   color: var(--primary-blue);
+}
+
+.btn-outline:active {
+  transform: scale(0.98);
 }
 
 /* Wallets Page */
@@ -732,6 +845,7 @@ body {
 .wallet-actions {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 /* Assets Page */
@@ -917,12 +1031,18 @@ body {
   color: var(--text-primary);
   background: var(--bg-card);
   transition: all 0.2s;
+  min-height: 44px;
+  font-family: inherit;
 }
 
 .form-input:focus {
   outline: none;
   border-color: var(--primary-blue);
   box-shadow: 0 0 0 3px rgba(0, 82, 255, 0.1);
+}
+
+.form-input::placeholder {
+  color: var(--text-tertiary);
 }
 
 .form-hint {
@@ -1160,10 +1280,12 @@ body {
 .form-actions {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .btn-outline-full {
   flex: 1;
+  min-width: 140px;
   padding: 14px;
   background: white;
   color: var(--text-primary);
@@ -1182,6 +1304,7 @@ body {
 
 .btn-primary-full {
   flex: 2;
+  min-width: 180px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1999,6 +2122,10 @@ input:checked + .toggle-slider:before {
   box-shadow: var(--shadow-lg);
 }
 
+.unlock-card-wide {
+  max-width: 500px;
+}
+
 .unlock-header {
   text-align: center;
   margin-bottom: 32px;
@@ -2528,40 +2655,1111 @@ input:checked + .toggle-slider:before {
 }
 
 /* Responsive Design */
+/* Tablet and Below - 1200px */
 @media (max-width: 1200px) {
+  .topbar {
+    padding: 14px 20px;
+  }
+
+  .page-content {
+    padding: 24px;
+  }
+
   .send-form-container,
   .receive-container {
     grid-template-columns: 1fr;
   }
+
+  .wallets-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+
+  .assets-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+
+  .transactions-table {
+    min-width: 820px;
+  }
 }
 
-@media (max-width: 768px) {
+/* Medium Tablet - 1024px */
+@media (max-width: 1024px) {
   .sidebar {
-    width: 220px;
+    width: 240px;
+    transform: translateX(-100%);
   }
-  
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
   .main-content {
-    margin-left: 220px;
+    margin-left: 0;
   }
-  
-  .page-content {
-    padding: 20px;
+
+  .menu-toggle {
+    display: inline-flex;
   }
-  
+
   .topbar {
-    padding: 12px 20px;
+    padding: 12px 16px;
   }
-  
+
+  .topbar-title {
+    font-size: 20px;
+  }
+
+  .wallet-address-box {
+    padding: 8px 10px;
+  }
+
+  .wallet-address {
+    font-size: 12px;
+  }
+
+  .sidebar-overlay {
+    display: block;
+  }
+
+  .balance-amount {
+    font-size: 38px;
+  }
+
+  .profile-header-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 28px;
+  }
+
+  .profile-header-content {
+    gap: 16px;
+  }
+
+  .assets-table th,
+  .assets-table td,
+  .transactions-table th,
+  .transactions-table td {
+    padding: 14px 12px;
+  }
+
+  .filters-bar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .settings-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .wallets-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+
+  .assets-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}
+
+/* iPad and Small Tablet - 768px */
+@media (max-width: 768px) {
+  .page-content {
+    padding: 16px 12px;
+  }
+
+  .topbar {
+    padding: 12px 12px;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .topbar-left {
+    width: 100%;
+    gap: 10px;
+  }
+
+  .topbar-title {
+    font-size: 18px;
+  }
+
+  .topbar-right {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .wallet-address-box {
+    flex: 1;
+    min-width: 150px;
+    padding: 8px;
+  }
+
+  .wallet-address {
+    display: none;
+  }
+
+  .wallet-icon {
+    margin-right: 0;
+  }
+
+  .profile-name {
+    display: none;
+  }
+
+  .profile-dropdown {
+    flex: 1;
+    min-width: 100px;
+  }
+
+  .unlock-card {
+    padding: 20px 16px;
+    border-radius: 14px;
+  }
+
+  .unlock-title {
+    font-size: 24px;
+  }
+
   .balance-header {
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
+    align-items: flex-start;
+    width: 100%;
   }
-  
+
+  .balance-card {
+    padding: 20px;
+  }
+
+  .balance-amount {
+    font-size: 32px;
+  }
+
+  .balance-actions {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .action-btn {
+    flex: 1;
+    justify-content: center;
+    min-width: 100px;
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .section {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .section-header {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .section-title {
+    font-size: 16px;
+  }
+
   .wallets-grid {
     grid-template-columns: 1fr;
+    gap: 12px;
   }
-  
+
+  .wallet-card {
+    padding: 16px;
+  }
+
+  .wallet-name {
+    font-size: 17px;
+  }
+
+  .wallet-balance-large {
+    font-size: 22px;
+  }
+
+  .page-title {
+    font-size: 24px;
+    margin-bottom: 8px;
+  }
+
+  .page-description {
+    font-size: 13px;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-outline {
+    width: 100%;
+    justify-content: center;
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .page-header > .flex {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn-outline-full,
+  .btn-primary-full {
+    width: 100%;
+    flex: unset;
+    min-width: unset;
+  }
+
+  .send-form-card,
+  .receive-card {
+    padding: 20px;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-label {
+    font-size: 13px;
+  }
+
+  .form-input {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .amount-input {
+    padding-right: 90px;
+  }
+
+  .amount-asset {
+    right: 60px;
+    font-size: 12px;
+  }
+
+  .max-btn {
+    right: 8px;
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+
+  .asset-option {
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .supported-assets {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .supported-asset {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .settings-section {
+    padding: 16px;
+  }
+
+  .settings-section-header {
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .settings-icon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .settings-section-title {
+    font-size: 18px;
+  }
+
+  .settings-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .profile-header-card {
+    padding: 18px;
+  }
+
+  .profile-avatar-large {
+    width: 64px;
+    height: 64px;
+  }
+
+  .profile-name {
+    font-size: 20px;
+  }
+
+  .profile-email {
+    font-size: 13px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
   .assets-grid {
     grid-template-columns: 1fr;
+  }
+
+  .asset-card {
+    padding: 16px;
+  }
+
+  .asset-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .asset-symbol {
+    font-size: 14px;
+  }
+
+  .asset-balance {
+    font-size: 16px;
+  }
+
+  .transaction-item {
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .transaction-icon {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+  }
+
+  .transaction-amount-section {
+    margin-right: 0;
+  }
+
+  .transactions-table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .transactions-table {
+    min-width: 600px;
+    font-size: 12px;
+  }
+
+  .transactions-table th,
+  .transactions-table td {
+    padding: 12px 8px;
+  }
+
+  .hash-text {
+    font-size: 11px;
+  }
+
+  .filters-bar {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .filter-tab {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .qr-placeholder {
+    width: 200px;
+    height: 200px;
+  }
+
+  .address-text-full {
+    font-size: 12px;
+    padding: 12px;
+  }
+
+  .copy-address-btn {
+    width: 100%;
+  }
+
+  .dashboard {
+    gap: 16px;
+  }
+}
+
+/* Mobile - 640px and below */
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
+  }
+
+  .app-container {
+    display: flex;
+  }
+
+  .topbar {
+    padding: 10px;
+    gap: 6px;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+  }
+
+  .topbar-left {
+    flex: 1;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .topbar-title {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .topbar-right {
+    width: 100%;
+    justify-content: space-between;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .wallet-address-box {
+    min-width: 120px;
+    padding: 6px 8px;
+    font-size: 11px;
+  }
+
+  .profile-dropdown {
+    flex: 0 1 auto;
+  }
+
+  .profile-btn {
+    padding: 6px;
+    gap: 4px;
+  }
+
+  .profile-avatar {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+  }
+
+  .menu-toggle {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+
+  .page-content {
+    padding: 12px;
+    flex: 1;
+  }
+
+  .page-title {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+
+  .page-description {
+    font-size: 12px;
+  }
+
+  .page-header {
+    gap: 8px;
+  }
+
+  .balance-card {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .balance-label {
+    font-size: 12px;
+  }
+
+  .balance-amount {
+    font-size: 28px;
+    margin-bottom: 6px;
+  }
+
+  .balance-change {
+    font-size: 12px;
+  }
+
+  .balance-actions {
+    gap: 8px;
+  }
+
+  .action-btn {
+    padding: 10px 12px;
+    font-size: 12px;
+    min-width: 90px;
+  }
+
+  .section {
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+
+  .section-title {
+    font-size: 15px;
+  }
+
+  .section-header {
+    margin-bottom: 16px;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-outline {
+    padding: 10px 12px;
+    font-size: 13px;
+    border-radius: 6px;
+  }
+
+  .btn-primary:hover,
+  .btn-primary-full:hover {
+    transform: none;
+  }
+
+  .wallets-grid {
+    gap: 10px;
+  }
+
+  .wallet-card {
+    padding: 14px;
+    border-radius: 12px;
+  }
+
+  .wallet-icon-large {
+    width: 48px;
+    height: 48px;
+  }
+
+  .wallet-name {
+    font-size: 16px;
+  }
+
+  .wallet-balance-large {
+    font-size: 20px;
+  }
+
+  .wallet-actions {
+    gap: 6px;
+  }
+
+  .asset-card {
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .asset-symbol {
+    font-size: 13px;
+  }
+
+  .asset-name {
+    font-size: 12px;
+  }
+
+  .asset-balance {
+    font-size: 15px;
+  }
+
+  .asset-value {
+    font-size: 12px;
+  }
+
+  .transaction-item {
+    padding: 12px;
+    gap: 10px;
+    border-radius: 10px;
+  }
+
+  .transaction-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .transaction-type {
+    font-size: 13px;
+  }
+
+  .transaction-time {
+    font-size: 11px;
+  }
+
+  .transaction-amount {
+    font-size: 14px;
+  }
+
+  .transaction-value {
+    font-size: 11px;
+  }
+
+  .transaction-status {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+
+  .send-form-card,
+  .receive-card {
+    padding: 16px;
+    border-radius: 12px;
+  }
+
+  .form-label {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .form-input {
+    padding: 10px;
+    font-size: 12px;
+    border-radius: 6px;
+  }
+
+  .form-input:focus {
+    box-shadow: 0 0 0 2px rgba(0, 82, 255, 0.1);
+  }
+
+  .form-hint {
+    font-size: 11px;
+    margin-top: 4px;
+  }
+
+  .asset-option {
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .amount-input-container {
+    gap: 6px;
+  }
+
+  .amount-input {
+    padding-right: 80px;
+  }
+
+  .amount-asset {
+    right: 52px;
+    font-size: 11px;
+  }
+
+  .max-btn {
+    right: 6px;
+    padding: 4px 6px;
+    font-size: 10px;
+    border-radius: 4px;
+  }
+
+  .gas-fee-section,
+  .tx-summary {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  .gas-label {
+    font-size: 13px;
+  }
+
+  .gas-row {
+    font-size: 12px;
+  }
+
+  .summary-row {
+    font-size: 13px;
+    padding: 6px 0;
+  }
+
+  .supported-assets {
+    gap: 8px;
+  }
+
+  .supported-asset {
+    padding: 8px;
+    font-size: 11px;
+  }
+
+  .qr-section {
+    gap: 12px;
+  }
+
+  .qr-placeholder {
+    width: 160px;
+    height: 160px;
+    border-radius: 12px;
+  }
+
+  .address-text-full {
+    font-size: 11px;
+    padding: 10px;
+    border-radius: 6px;
+  }
+
+  .copy-address-btn {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .network-badge {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  .monitoring-badge {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+
+  .settings-section {
+    padding: 14px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+  }
+
+  .settings-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .settings-section-title {
+    font-size: 16px;
+    margin-bottom: 2px;
+  }
+
+  .settings-section-desc {
+    font-size: 12px;
+  }
+
+  .settings-item {
+    padding: 12px;
+    border-radius: 8px;
+    gap: 10px;
+  }
+
+  .settings-item-label {
+    font-size: 14px;
+  }
+
+  .settings-item-desc {
+    font-size: 12px;
+  }
+
+  .toggle-switch {
+    width: 44px;
+    height: 24px;
+  }
+
+  .toggle-slider:before {
+    height: 18px;
+    width: 18px;
+  }
+
+  input:checked + .toggle-slider:before {
+    transform: translateX(20px);
+  }
+
+  .profile-header-card {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .profile-avatar-large {
+    width: 56px;
+    height: 56px;
+  }
+
+  .profile-name {
+    font-size: 18px;
+  }
+
+  .profile-email {
+    font-size: 12px;
+  }
+
+  .info-card {
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .info-icon {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 12px;
+  }
+
+  .info-title {
+    font-size: 15px;
+    margin-bottom: 10px;
+  }
+
+  .info-list li {
+    padding: 6px 0 6px 20px;
+    font-size: 12px;
+  }
+
+  .dropdown-menu {
+    min-width: 140px;
+    right: 0;
+  }
+
+  .dropdown-item {
+    padding: 10px 12px;
+    font-size: 13px;
+    gap: 10px;
+  }
+
+  .filters-bar {
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .filter-tab {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .filter-tabs {
+    gap: 4px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .transactions-table {
+    min-width: 500px;
+    font-size: 11px;
+  }
+
+  .transactions-table th,
+  .transactions-table td {
+    padding: 10px 6px;
+  }
+
+  .hash-text {
+    font-size: 10px;
+  }
+
+  .type-badge,
+  .status-badge,
+  .change-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  .assets-grid {
+    gap: 10px;
+  }
+
+  .assets-table th,
+  .assets-table td {
+    padding: 12px 8px;
+  }
+
+  .assets-table th {
+    font-size: 11px;
+  }
+
+  .asset-icon-table {
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+  }
+
+  .asset-symbol-table {
+    font-size: 13px;
+  }
+
+  .asset-name-table {
+    font-size: 12px;
+  }
+
+  .price-cell,
+  .balance-cell,
+  .value-cell {
+    font-size: 13px;
+  }
+
+  .table-btn {
+    padding: 4px 10px;
+    font-size: 11px;
+  }
+
+  .sidebar {
+    width: 220px;
+    z-index: 101;
+  }
+
+  .sidebar-logo {
+    padding: 16px 14px;
+    gap: 8px;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .logo-text {
+    font-size: 16px;
+  }
+
+  .sidebar-nav {
+    padding: 12px 8px;
+  }
+
+  .sidebar-item {
+    padding: 10px 12px;
+    font-size: 13px;
+    gap: 10px;
+    border-radius: 6px;
+  }
+
+  .sidebar-item svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .sidebar-footer {
+    padding: 12px 14px;
+  }
+
+  .sidebar-version {
+    font-size: 11px;
+  }
+}
+
+/* Extra Small - 480px and below */
+@media (max-width: 480px) {
+  .topbar {
+    padding: 8px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .topbar-left {
+    width: 100%;
+    flex-direction: row;
+  }
+
+  .topbar-title {
+    font-size: 15px;
+  }
+
+  .topbar-right {
+    width: 100%;
+    margin-top: 6px;
+  }
+
+  .wallet-address-box {
+    width: auto;
+    flex: 1;
+  }
+
+  .menu-toggle {
+    width: 34px;
+    height: 34px;
+  }
+
+  .page-content {
+    padding: 10px;
+  }
+
+  .page-title {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .balance-card {
+    padding: 14px;
+  }
+
+  .balance-amount {
+    font-size: 24px;
+  }
+
+  .action-btn {
+    min-width: 80px;
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+  .section {
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+
+  .section-title {
+    font-size: 14px;
+  }
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-outline {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .send-form-card,
+  .receive-card {
+    padding: 14px;
+  }
+
+  .form-input {
+    padding: 8px;
+    font-size: 11px;
+  }
+
+  .wallet-card {
+    padding: 12px;
+  }
+
+  .asset-card {
+    padding: 12px;
+  }
+
+  .transaction-item {
+    padding: 10px;
+  }
+
+  .info-card {
+    padding: 12px;
+  }
+
+  .settings-section {
+    padding: 12px;
+  }
+
+  .settings-item {
+    padding: 10px;
+  }
+
+  .qr-placeholder {
+    width: 140px;
+    height: 140px;
+  }
+
+  .sidebar {
+    width: 200px;
+  }
+
+  .sidebar-item {
+    padding: 8px 10px;
+    font-size: 12px;
   }
 }

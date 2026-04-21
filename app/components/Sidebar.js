@@ -76,7 +76,7 @@ const menuItems = [
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen = false, onClose = () => {} }) {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuth();
@@ -96,6 +96,10 @@ export default function Sidebar() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    onClose();
+  }, [pathname, onClose]);
+
   const handleClick = (e, item) => {
     if (!user) {
       e.preventDefault();
@@ -112,7 +116,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? "open" : ""}`}>
       <div className="sidebar-logo">
         <div className="logo-icon">
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">

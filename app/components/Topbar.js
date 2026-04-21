@@ -7,7 +7,7 @@ import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { clearActiveWalletSession } from "@/lib/walletSession";
 
-export default function Topbar() {
+export default function Topbar({ onMenuClick = () => {} }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [walletAddress, setWalletAddress] = useState(() => {
     if (typeof window === "undefined") {
@@ -67,6 +67,16 @@ export default function Topbar() {
   return (
     <header className="topbar">
       <div className="topbar-left">
+        <button
+          className="menu-toggle"
+          onClick={onMenuClick}
+          aria-label="Toggle navigation"
+          type="button"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
         <h1 className="topbar-title">Dashboard</h1>
       </div>
 
